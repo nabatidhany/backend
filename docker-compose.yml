@@ -10,10 +10,10 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.hono.rule=Host(`api.kamu.com`)"
-      - "traefik.http.routers.hono.entrypoints=websecure"
-      - "traefik.http.routers.hono.tls=true"
-      - "traefik.http.services.hono.loadbalancer.server.port=3000"
+      - "traefik.http.routers.waha.rule=Host(`app.shollu.com`)"
+      - "traefik.http.routers.waha.entrypoints=websecure"
+      - "traefik.http.routers.waha.tls.certresolver=myresolver"
+      - "traefik.http.services.waha.loadbalancer.server.port=3000"
 
 networks:
   traefik:
