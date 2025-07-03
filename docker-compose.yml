@@ -4,12 +4,20 @@ services:
   app:
     build: .
     container_name: hono-app
-    ports:
-      - "3000:3000"
     env_file:
       - .env
-    depends_on:
-      - db
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hono.rule=Host(`api.kamu.com`)"
+      - "traefik.http.routers.hono.entrypoints=websecure"
+      - "traefik.http.routers.hono.tls=true"
+      - "traefik.http.services.hono.loadbalancer.server.port=3000"
+
+networks:
+  traefik:
+    external: true
 
 volumes:
   db_data:
