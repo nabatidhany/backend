@@ -10,14 +10,11 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.waha.rule=Host(`app.shollu.com`)"
-      - "traefik.http.routers.waha.entrypoints=websecure"
-      - "traefik.http.routers.waha.tls.certresolver=myresolver"
-      - "traefik.http.services.waha.loadbalancer.server.port=3000"
+      - "traefik.http.routers.hono.rule=Host(`app.shollu.com`)"
+      - "traefik.http.routers.hono.entrypoints=websecure"
+      - "traefik.http.routers.hono.tls.certresolver=myresolver"
+      - "traefik.http.services.hono.loadbalancer.server.port=3000"
 
 networks:
   traefik:
     external: true
-
-volumes:
-  db_data:
