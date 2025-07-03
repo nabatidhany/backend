@@ -23,7 +23,7 @@ auth.post('/login', async (c) => {
 
   // Simulasi login
   if (username === 'admin' && password === 'password') {
-    const token = await generateToken({ username });
+    const token = await generateToken({ username, id: 1849 });
     return c.json(successResponse('Berhasil login', { token }));
   }
 

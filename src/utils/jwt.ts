@@ -11,7 +11,7 @@ export const generateToken = async (payload: UserPayload, expiresInSec: number =
       exp: now + oneYearInSeconds,
       iat: now,
       iss: 'my-api',
-      sub: payload.username
+      sub: payload.id
     },
     JWT_SECRET
   );

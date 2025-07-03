@@ -3,6 +3,7 @@ import { authMiddleware } from '../middlewares/auth';
 import { db } from '../db/client';
 import { successResponse } from '../utils/response';
 import { getPagination } from '../utils/pagination';
+import { getHome } from '../handlers/home/getHome';
 
 const privateRoute = new Hono();
 
@@ -37,5 +38,7 @@ privateRoute.get('/users', async (c) => {
     })
   );
 });
+
+privateRoute.get('/home', getHome);
 
 export default privateRoute;
