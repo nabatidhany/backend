@@ -4,6 +4,7 @@ import { db } from '../db/client';
 import { successResponse } from '../utils/response';
 import { getPagination } from '../utils/pagination';
 import { getHome } from '../handlers/home/getHome';
+import { createHabit } from '../handlers/habits/createHabit';
 
 const privateRoute = new Hono();
 
@@ -40,5 +41,6 @@ privateRoute.get('/users', async (c) => {
 });
 
 privateRoute.get('/home', getHome);
+privateRoute.post('/habits', createHabit);
 
 export default privateRoute;

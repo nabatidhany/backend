@@ -52,27 +52,37 @@ export const getHome = async (c: Context) => {
   );
 
   // Ambil absensi hari ini (waktu Indonesia)
-    const [absensiLogs]: any = await db.query(`
-        SELECT tag, DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '+07:00'), '%H:%i') AS time
-        FROM absensi
-        WHERE user_id = ?
-        AND DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = CURDATE()
-        AND tag IN ('subuh', 'zuhur', 'ashar', 'maghrib', 'isya')
-    `, [userId]);
-    
-    // Inisialisasi default: status false, time null
-    const sholatTags = ['subuh', 'zuhur', 'ashar', 'maghrib', 'isya'];
-    const sholatLogs = Object.fromEntries(
-        sholatTags.map((tag) => [tag, { status: false, time: null }])
-    );
-    
-    // Isi data dari absensi jika ada
-    for (const row of absensiLogs) {
-        const tag = row.tag?.toLowerCase();
-        if (sholatTags.includes(tag) && !sholatLogs[tag].status) {
-        sholatLogs[tag] = { status: true, time: row.time };
-        }
-    }
+  const [absensiLogs]: any = await db.query(`
+      SELECT
+          a.tag,
+          DATE_FORMAT(CONVERT_TZ(a.created_at, '+00:00', '+07:00'), '%H:%i') AS time,
+          m.nama AS nama_masjid,
+          m.id AS masjid_id
+      FROM
+          absensi a
+      LEFT JOIN
+          petugas p ON a.mesin_id = p.id_user
+      LEFT JOIN
+          masjid m ON p.id_masjid = m.id
+      WHERE
+          a.user_id = ?
+          AND DATE(CONVERT_TZ(a.created_at, '+00:00', '+07:00')) = CURDATE()
+          AND a.tag IN ('subuh', 'zuhur', 'ashar', 'maghrib', 'isya')
+  `, [userId]);
+  
+  // Inisialisasi default: status false, time null, nama_masjid null
+  const sholatTags = ['subuh', 'zuhur', 'ashar', 'maghrib', 'isya'];
+  const sholatLogs = Object.fromEntries(
+      sholatTags.map((tag) => [tag, { status: false, time: null, nama_masjid: null, masjid_id: null }])
+  );
+  
+  // Isi data dari absensi jika ada
+  for (const row of absensiLogs) {
+      const tag = row.tag?.toLowerCase();
+      if (sholatTags.includes(tag) && !sholatLogs[tag].status) {
+          sholatLogs[tag] = { status: true, time: row.time, nama_masjid: row.nama_masjid, masjid_id: row.masjid_id };
+      }
+  }
   
 
   // Ambil habit harian
