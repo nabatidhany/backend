@@ -11,8 +11,9 @@ app.route('/api', privateRoute);
 
 app.get('/', (c) => c.text('Hello from Bun + Hono API'));
 
-cron.schedule('*/15 * * * *', async () => {
-  console.log('⏰ Cron jalan setiap 15 menit!');
+// cron.schedule('*/15 * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
+  console.log('⏰ Cron jalan setiap 1 Jam!');
   await generateAndStoreDailyContent(); // Fungsi yang kamu buat sendiri
 });
 

@@ -32,7 +32,7 @@
     Contoh format:
     {
     	"quote": "Buat satu quote islami singkat (maksimal 1 kalimat) yang bisa memberi semangat untuk menjalani hari. Gunakan gaya bahasa ringan, menyentuh, dan mudah dipahami.",
-      "ayat": "Berikan satu ayat Al-Qur'an beserta artinya dan penjelasan ringkas (tafsir ringan) yang relevan dengan kehidupan sehari-hari. Gunakan bahasa Indonesia yang mudah dipahami.",
+      "ayat": "Berikan satu ayat Al-Qur'an beserta artinya dan penjelasan ringkas (tafsir ringan) yang relevan dengan kehidupan sehari-hari dan jelajahi semua ayat pada alquran yang cocok diberikan pada hari ini. Gunakan bahasa Indonesia yang mudah dipahami.",
       "tips": "Berikan satu tips atau nasehat islami sederhana yang bisa diamalkan oleh muslim setiap hari, dan mampu memperbaiki akhlak atau semangat beribadah.",
       "challenge": "Berikan satu tantangan ibadah ringan yang bisa dilakukan hari ini oleh seorang muslim. Contoh: "Jangan tinggalkan sholat dhuha", "Baca 5 ayat Al-Qur'an", dan sebagainya."
     }

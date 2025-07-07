@@ -67,11 +67,11 @@ export const getHome = async (c: Context) => {
       WHERE
           a.user_id = ?
           AND DATE(CONVERT_TZ(a.created_at, '+00:00', '+07:00')) = CURDATE()
-          AND a.tag IN ('subuh', 'zuhur', 'ashar', 'maghrib', 'isya')
+          AND a.tag IN ('subuh', 'dzuhur', 'ashar', 'maghrib', 'isya')
   `, [userId]);
   
   // Inisialisasi default: status false, time null, nama_masjid null
-  const sholatTags = ['subuh', 'zuhur', 'ashar', 'maghrib', 'isya'];
+  const sholatTags = ['subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'];
   const sholatLogs = Object.fromEntries(
       sholatTags.map((tag) => [tag, { status: false, time: null, nama_masjid: null, masjid_id: null }])
   );
@@ -87,15 +87,48 @@ export const getHome = async (c: Context) => {
 
   // Ambil habit harian
   const [habits]: any = await db.query(`
-    SELECT h.id as habit_id, h.name, COALESCE(l.is_done, false) as is_done
+    SELECT h.id as habit_id, h.name, h.is_mandatory, h.user_id,
+      COALESCE(l.is_done, false) as is_done
     FROM habits h
     LEFT JOIN habit_logs l ON l.habit_id = h.id AND l.date = ? AND l.user_id = ?
-    WHERE h.user_id = ?
+    WHERE (h.user_id = 0 AND h.is_mandatory = 1)
+      OR h.user_id = ?
   `, [today, userId, userId]);
+
+  const habitsToday = habits.map((habit: any) => {
+    const lowerName = habit.name.toLowerCase();
+
+    if (habit.is_mandatory && habit.user_id === 0) {
+      const tag = lowerName.includes('subuh') ? 'subuh'
+                : lowerName.includes('dzuhur') ? 'dzuhur'
+                : lowerName.includes('ashar') ? 'ashar'
+                : lowerName.includes('maghrib') ? 'maghrib'
+                : lowerName.includes('isya') ? 'isya'
+                : '';
+
+      const autoChecked = sholatLogs[tag]?.status ?? false;
+
+      return {
+        habit_id: habit.habit_id,
+        name: habit.name,
+        is_done: autoChecked || habit.is_done,
+        auto_checked: autoChecked,
+        editable: !autoChecked
+      };
+    }
+
+    return {
+      habit_id: habit.habit_id,
+      name: habit.name,
+      is_done: habit.is_done,
+      auto_checked: false,
+      editable: true
+    };
+  });
 
   return c.json(successResponse('Home fetched successfully', {
     sholat_logs: sholatLogs,
-    habits_today: habits,
+    habits_today: habitsToday,
     timeline,
     pagination: {
       page: safePage,

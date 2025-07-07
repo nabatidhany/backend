@@ -5,6 +5,8 @@ import { successResponse } from '../utils/response';
 import { getPagination } from '../utils/pagination';
 import { getHome } from '../handlers/home/getHome';
 import { createHabit } from '../handlers/habits/createHabit';
+import { updateHabitCheck } from '../handlers/habits/updateHabitCheck';
+import { checkLocation } from '../handlers/location/checkLocation';
 
 const privateRoute = new Hono();
 
@@ -42,5 +44,8 @@ privateRoute.get('/users', async (c) => {
 
 privateRoute.get('/home', getHome);
 privateRoute.post('/habits', createHabit);
+privateRoute.post('/habits/:id/check', updateHabitCheck)
+privateRoute.post('/location/check', checkLocation)
+
 
 export default privateRoute;
