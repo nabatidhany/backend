@@ -57,17 +57,14 @@ export const getHome = async (c: Context) => {
           a.tag,
           DATE_FORMAT(CONVERT_TZ(a.created_at, '+00:00', '+07:00'), '%H:%i') AS time,
           m.nama AS nama_masjid,
-          m.id AS masjid_id
-      FROM
-          absensi a
-      LEFT JOIN
-          petugas p ON a.mesin_id = p.id_user
-      LEFT JOIN
-          masjid m ON p.id_masjid = m.id
+          a.masjid_id
+      FROM absensi a
+      LEFT JOIN masjid m ON a.masjid_id = m.id
       WHERE
           a.user_id = ?
           AND DATE(CONVERT_TZ(a.created_at, '+00:00', '+07:00')) = CURDATE()
           AND a.tag IN ('subuh', 'dzuhur', 'ashar', 'maghrib', 'isya')
+          AND a.masjid_id IS NOT NULL
   `, [userId]);
   
   // Inisialisasi default: status false, time null, nama_masjid null

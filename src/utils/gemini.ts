@@ -38,7 +38,7 @@
     }
 
     Berikan konten baru hari ini. Balas **hanya JSON-nya saja**.
-
+    Penting, untuk setiap bagian quote, tips, chalenge dan yang penting bagian ayat kembalikan dalam string saja jangan memakai object.
   `;
 
   function cleanJsonBlock(raw: string): string {
