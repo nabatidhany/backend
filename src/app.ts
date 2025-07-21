@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import auth from './routes/auth';
 import privateRoute from './routes/private';
-import cron from 'node-cron';
-import { generateAndStoreDailyContent } from './jobs/aiContent';
+// import cron from 'node-cron';
+// import { generateAndStoreDailyContent } from './jobs/aiContent';
 
 const app = new Hono();
 
@@ -12,10 +12,10 @@ app.route('/api', privateRoute);
 app.get('/', (c) => c.text('Hello from Bun + Hono API'));
 
 // cron.schedule('*/15 * * * *', async () => {
-cron.schedule('0 * * * *', async () => {
-  console.log('⏰ Cron jalan setiap 1 Jam!');
-  await generateAndStoreDailyContent(); // Fungsi yang kamu buat sendiri
-});
+// cron.schedule('0 * * * *', async () => {
+//   console.log('⏰ Cron jalan setiap 1 Jam!');
+//   await generateAndStoreDailyContent(); // Fungsi yang kamu buat sendiri
+// });
 
 // (async () => {
 // 	console.log('🚀 Pertama kali jalan, generate konten AI sekarang...');
