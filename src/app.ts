@@ -8,12 +8,12 @@ import { cors } from 'hono/cors'
 
 const app = new Hono();
 
-app.route('/auth', auth);
-app.route('/api', privateRoute);
-
 app.use('/generate/*', cors({
   origin: '*', // Ganti ke domain frontend kalau ingin lebih aman
 }))
+
+app.route('/auth', auth);
+app.route('/api', privateRoute);
 
 app.get('/', (c) => c.text('Hello from Bun + Hono API'));
 
