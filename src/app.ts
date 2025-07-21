@@ -8,7 +8,7 @@ import { cors } from 'hono/cors'
 
 const app = new Hono();
 
-app.use('/generate/*', cors({
+app.use('*', cors({
   origin: '*', // Ganti ke domain frontend kalau ingin lebih aman
 }))
 
