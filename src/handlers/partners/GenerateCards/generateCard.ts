@@ -31,13 +31,18 @@ export const generateCards = async (c: Context) => {
     const CARD_WIDTH = 5.4 * 28.3465 // ≈ 153.07 pt
     const CARD_HEIGHT = 8.56 * 28.3465 // ≈ 242.6 pt
 
-    const PAGE_WIDTH = 841.89 // Lebar A4
-    const PAGE_HEIGHT = 595.28 // Tinggi A4 (landscape A4)
+    // const PAGE_WIDTH = 841.89 // Lebar A4
+    // const PAGE_HEIGHT = 595.28 // Tinggi A4 (landscape A4)
 
-    const MARGIN_X = 20
-    const MARGIN_Y = 20
+    const PAGE_WIDTH = 935.43   // F4 width (210mm)
+    const PAGE_HEIGHT = 595.28   // F4 height (330mm)
 
-    const COLUMNS_PER_ROW = 2
+    const MARGIN_X = 4
+    const MARGIN_Y = 4
+    // const MARGIN_X = 20
+    // const MARGIN_Y = 20
+
+    const COLUMNS_PER_ROW = 3
     const ROWS_PER_PAGE = 2
     const CARDS_PER_PAGE = ROWS_PER_PAGE * COLUMNS_PER_ROW
 
