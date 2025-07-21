@@ -5,10 +5,14 @@
   },
   "dependencies": {
     "@planetscale/database": "^1.19.0",
+    "@types/qrcode": "^1.5.5",
     "dotenv": "^17.0.1",
     "hono": "^4.8.3",
     "mysql2": "^3.14.1",
+    "nanoid": "^5.1.5",
     "node-cron": "^4.2.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
     "zod": "^3.25.71"
   },
   "devDependencies": {
