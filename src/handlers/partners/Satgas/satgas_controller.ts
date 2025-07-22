@@ -8,7 +8,7 @@ export const getUnapprovedSatgas = async (c: Context) => {
   const limit = parseInt(c.req.query('limit') || '10', 10)
   const offset = (page - 1) * limit
 
-  // Ambil total status
+  // Ambil ringkasan status
   const [[counts]]: any = await db.query(`
     SELECT 
       SUM(status = 0) as pending,
@@ -18,16 +18,19 @@ export const getUnapprovedSatgas = async (c: Context) => {
     FROM petugas
   `)
 
-  // Ambil data paginasi
+  // Total data pending
   const [[{ total_pending }]]: any = await db.query(
     `SELECT COUNT(*) as total_pending FROM petugas WHERE status = 0`
   )
 
+  // Ambil data dengan pagination dan join masjid
   const [rows]: any = await db.query(
     `SELECT 
-      p.id, p.nama, p.contact, p.id_masjid, p.id_user, u.username, u.name 
+      p.id, p.nama, p.contact, p.id_masjid, m.nama as nama_masjid,
+      p.id_user, u.username, u.name 
      FROM petugas p
      JOIN users u ON p.id_user = u.id
+     JOIN masjid m ON p.id_masjid = m.id
      WHERE p.status = 0
      LIMIT ? OFFSET ?`,
     [limit, offset]
