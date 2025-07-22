@@ -41,7 +41,7 @@ export const createPesertaHandler = async (c: Context) => {
 
       // Ambil masjid_id dari tabel petugas berdasarkan id_user (yang mendaftarkan)
       const [petugasRows]: any = await conn.query(
-        `SELECT masjid_id FROM petugas WHERE id_user = ? LIMIT 1`,
+        `SELECT id_masjid FROM petugas WHERE id_user = ? LIMIT 1`,
         [user.id]
       )
 
@@ -50,7 +50,7 @@ export const createPesertaHandler = async (c: Context) => {
         return c.json(errorResponse('Petugas tidak ditemukan'), 404)
       }
 
-      const masjid_id = petugasRows[0].masjid_id
+      const masjid_id = petugasRows[0].id_masjid
 
       // Insert ke tabel peserta
       const [insertPeserta]: any = await conn.query(
