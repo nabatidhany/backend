@@ -131,6 +131,8 @@ export const rejectSatgas = async (c: Context) => {
 export const getPesertaByEvent = async (c: Context) => {
   const eventId = c.req.query('event_id')
   const satgasId = c.req.query('satgas_id')
+  const search = c.req.query('search')?.trim()
+  const gender = c.req.query('gender')?.toUpperCase()
   const page = parseInt(c.req.query('page') || '1')
   const limit = parseInt(c.req.query('limit') || '10')
   const offset = (page - 1) * limit
@@ -139,7 +141,6 @@ export const getPesertaByEvent = async (c: Context) => {
     return c.json(errorResponse('event_id wajib dikirim', 400))
   }
 
-  // --- Main query ---
   let query = `
     SELECT 
       dp.id_event,
@@ -160,7 +161,6 @@ export const getPesertaByEvent = async (c: Context) => {
     LEFT JOIN users u ON p.id_user = u.id
     WHERE dp.id_event = ?
   `
-
   const params: any[] = [eventId]
 
   if (satgasId) {
@@ -168,10 +168,20 @@ export const getPesertaByEvent = async (c: Context) => {
     params.push(satgasId)
   }
 
+  if (search) {
+    query += ' AND p.fullname LIKE ?'
+    params.push(`%${search}%`)
+  }
+
+  if (gender === 'L' || gender === 'P') {
+    query += ' AND p.gender = ?'
+    params.push(gender)
+  }
+
   query += ' ORDER BY p.fullname ASC LIMIT ? OFFSET ?'
   params.push(limit, offset)
 
-  // --- Count query for pagination info ---
+  // Count query
   let countQuery = `
     SELECT COUNT(*) AS total
     FROM detail_peserta dp
@@ -179,9 +189,20 @@ export const getPesertaByEvent = async (c: Context) => {
     WHERE dp.id_event = ?
   `
   const countParams: any[] = [eventId]
+
   if (satgasId) {
     countQuery += ' AND p.id_user = ?'
     countParams.push(satgasId)
+  }
+
+  if (search) {
+    countQuery += ' AND p.fullname LIKE ?'
+    countParams.push(`%${search}%`)
+  }
+
+  if (gender === 'L' || gender === 'P') {
+    countQuery += ' AND p.gender = ?'
+    countParams.push(gender)
   }
 
   const [rows]: any = await db.query(query, params)
@@ -200,3 +221,4 @@ export const getPesertaByEvent = async (c: Context) => {
     }
   }))
 }
+
