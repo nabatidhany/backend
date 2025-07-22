@@ -7,20 +7,8 @@ export const getTodayAbsensiSatgas = async (c: Context) => {
     const user = c.get('user') // JWT middleware
     const conn = await db.getConnection()
 
-    // Ambil id_masjid dari petugas
-    const [petugasRows]: any = await conn.query(
-      'SELECT id_masjid FROM petugas WHERE id_user = ? LIMIT 1',
-      [user.id]
-    )
-
-    if (!petugasRows.length) {
-      return c.json(errorResponse('Petugas tidak ditemukan'), 404)
-    }
-
-    const masjid_id = petugasRows[0].id_masjid
-
     // Ambil id_masjid sebagai mesin_id
-    const mesin_id = masjid_id
+    const mesin_id = user.id
 
     // Query waktu lokal (UTC+7)
     const query = `
