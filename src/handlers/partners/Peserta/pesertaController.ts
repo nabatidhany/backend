@@ -11,6 +11,7 @@ const pesertaSchema = z.object({
   gender: z.enum(['male', 'female']),
   dob: z.string().optional(), // format bebas
   id_event: z.number(),
+  qr_code: z.string().min(5), // qr_code dikirim dari frontend
   is_hide_name: z.boolean().optional()
 })
 
@@ -30,10 +31,9 @@ export const createPesertaHandler = async (c: Context) => {
       gender,
       dob,
       id_event,
+      qr_code,
       is_hide_name = false
     } = parsed.data
-
-    const qr_code = nanoid(10)
 
     const conn = await db.getConnection()
     try {
