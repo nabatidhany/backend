@@ -141,28 +141,7 @@ export const getPesertaByEvent = async (c: Context) => {
     return c.json(errorResponse('event_id wajib dikirim', 400))
   }
 
-  const baseWhere = [`dp.id_event = ?`]
-  const params: any[] = [eventId]
-
-  if (satgasId) {
-    baseWhere.push('p.id_user = ?')
-    params.push(satgasId)
-  }
-
-  if (search) {
-    baseWhere.push('p.fullname LIKE ?')
-    params.push(`%${search}%`)
-  }
-
-  if (gender === 'male' || gender === 'female') {
-    baseWhere.push('p.gender = ?')
-    params.push(gender)
-  }
-
-  const whereClause = baseWhere.length ? 'WHERE ' + baseWhere.join(' AND ') : ''
-
-  // Main query with pagination
-  const query = `
+  let query = `
     SELECT 
       dp.id_event,
       p.id AS peserta_id,
@@ -180,39 +159,76 @@ export const getPesertaByEvent = async (c: Context) => {
     JOIN peserta p ON dp.id_peserta = p.id
     LEFT JOIN masjid m ON p.masjid_id = m.id
     LEFT JOIN users u ON p.id_user = u.id
-    ${whereClause}
-    ORDER BY p.fullname ASC
-    LIMIT ? OFFSET ?
+    WHERE dp.id_event = ?
   `
-  const paginatedParams = [...params, limit, offset]
+  const params: any[] = [eventId]
 
-  // Total count (for pagination)
-  const countQuery = `
+  if (satgasId) {
+    query += ' AND p.id_user = ?'
+    params.push(satgasId)
+  }
+
+  if (search) {
+    query += ' AND p.fullname LIKE ?'
+    params.push(`%${search}%`)
+  }
+
+  if (gender === 'male' || gender === 'female') {
+    query += ' AND p.gender = ?'
+    params.push(gender)
+  }
+
+  query += ' ORDER BY p.fullname ASC LIMIT ? OFFSET ?'
+  params.push(limit, offset)
+
+  // Count total peserta
+  let countQuery = `
     SELECT COUNT(*) AS total
-    FROM detail_peserta dp
-    JOIN peserta p ON dp.id_peserta = p.id
-    ${whereClause}
-  `
-
-  // Total male & female for the entire event_id (tanpa filter)
-  const genderCountQuery = `
-    SELECT 
-      SUM(CASE WHEN p.gender = 'male' THEN 1 ELSE 0 END) AS total_male,
-      SUM(CASE WHEN p.gender = 'female' THEN 1 ELSE 0 END) AS total_female
     FROM detail_peserta dp
     JOIN peserta p ON dp.id_peserta = p.id
     WHERE dp.id_event = ?
   `
+  const countParams: any[] = [eventId]
 
-  const [rows]: any = await db.query(query, paginatedParams)
-  const [countResult]: any = await db.query(countQuery, params)
-  const [genderCountResult]: any = await db.query(genderCountQuery, [eventId])
+  if (satgasId) {
+    countQuery += ' AND p.id_user = ?'
+    countParams.push(satgasId)
+  }
+
+  if (search) {
+    countQuery += ' AND p.fullname LIKE ?'
+    countParams.push(`%${search}%`)
+  }
+
+  if (gender === 'male' || gender === 'female') {
+    countQuery += ' AND p.gender = ?'
+    countParams.push(gender)
+  }
+
+  // Count male
+  const [maleCountResult]: any = await db.query(`
+    SELECT COUNT(*) AS total_male
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    WHERE dp.id_event = ? AND p.gender = 'male'
+  `, [eventId])
+
+  // Count female
+  const [femaleCountResult]: any = await db.query(`
+    SELECT COUNT(*) AS total_female
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    WHERE dp.id_event = ? AND p.gender = 'female'
+  `, [eventId])
+
+  const [rows]: any = await db.query(query, params)
+  const [countResult]: any = await db.query(countQuery, countParams)
 
   const total = countResult[0]?.total || 0
   const totalPages = Math.ceil(total / limit)
 
-  const totalMale = genderCountResult[0]?.total_male || 0
-  const totalFemale = genderCountResult[0]?.total_female || 0
+  const totalMale = maleCountResult[0]?.total_male || 0
+  const totalFemale = femaleCountResult[0]?.total_female || 0
 
   return c.json(successResponse('Daftar peserta berhasil diambil', {
     data: rows,
@@ -222,12 +238,11 @@ export const getPesertaByEvent = async (c: Context) => {
       total,
       totalPages
     },
-    genderCount: {
-      male: totalMale,
-      female: totalFemale
+    summary: {
+      total_male: totalMale,
+      total_female: totalFemale
     }
   }))
 }
-
 
 
