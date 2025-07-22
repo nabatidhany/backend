@@ -54,8 +54,8 @@ export const getDaftarRequestCetak = async (c: Context) => {
       const limit = parseInt(query.limit || '10')
       const offset = (page - 1) * limit
 
-      const whereClause = level === 1 ? '' : 'WHERE r.id_user = ?'
-      const params = level === 1 ? [limit, offset] : [user.id, limit, offset]
+      const whereClause = level === '1' ? '' : 'WHERE r.id_user = ?'
+      const params = level === '1' ? [limit, offset] : [user.id, limit, offset]
 
       const [rows]: any = await conn.query(
         `
