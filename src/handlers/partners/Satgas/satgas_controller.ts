@@ -1,4 +1,3 @@
-// controllers/satgas_controller.ts
 import { Context } from 'hono'
 import { db } from '../../../db/client'
 import { errorResponse, successResponse } from '../../../utils/response'
@@ -9,9 +8,19 @@ export const getUnapprovedSatgas = async (c: Context) => {
   const limit = parseInt(c.req.query('limit') || '10', 10)
   const offset = (page - 1) * limit
 
-  // Ambil total data (untuk info total halaman)
-  const [[{ total }]]: any = await db.query(
-    `SELECT COUNT(*) as total FROM petugas WHERE status = 0`
+  // Ambil total status
+  const [[counts]]: any = await db.query(`
+    SELECT 
+      SUM(status = 0) as pending,
+      SUM(status = 1) as approved,
+      SUM(status = 9) as rejected,
+      COUNT(*) as total
+    FROM petugas
+  `)
+
+  // Ambil data paginasi
+  const [[{ total_pending }]]: any = await db.query(
+    `SELECT COUNT(*) as total_pending FROM petugas WHERE status = 0`
   )
 
   const [rows]: any = await db.query(
@@ -27,9 +36,15 @@ export const getUnapprovedSatgas = async (c: Context) => {
   return c.json(successResponse('Daftar satgas belum di-approve', {
     current_page: page,
     per_page: limit,
-    total,
-    last_page: Math.ceil(total / limit),
-    data: rows
+    total: total_pending,
+    last_page: Math.ceil(total_pending / limit),
+    data: rows,
+    summary: {
+      pending: counts.pending || 0,
+      approved: counts.approved || 0,
+      rejected: counts.rejected || 0,
+      total: counts.total || 0
+    }
   }))
 }
 
@@ -42,32 +57,24 @@ export const approveSatgas = async (c: Context) => {
   })
 
   const parsed = schema.safeParse(body)
-
   if (!parsed.success) {
     return c.json(errorResponse('Input tidak valid'), 400)
   }
 
   const { id, id_event } = parsed.data
-
-  // ✅ Ambil id_user dari JWT
   const jwtPayload = c.get('user') as { id: number }
-  const userId = jwtPayload.id
-  // ✅ Cek level user di database
-  const [rows]: any = await db.query(
-    `SELECT level FROM users WHERE id = ?`,
-    [userId]
-  )
 
-  if (rows.length === 0) {
+  // ✅ Validasi user level
+  const [users]: any = await db.query(`SELECT level FROM users WHERE id = ?`, [jwtPayload.id])
+  if (users.length === 0) {
     return c.json(errorResponse('User tidak ditemukan'), 404)
   }
 
-  const level = rows[0].level
-  if (Number(level) !== 1) {
+  if (Number(users[0].level) !== 1) {
     return c.json(errorResponse('Anda tidak memiliki izin untuk melakukan aksi ini'), 403)
   }
 
-  // ✅ Update status dan id_event
+  // ✅ Update status menjadi 1 (approved) + id_event
   const [result]: any = await db.query(
     `UPDATE petugas SET status = 1, id_event = ? WHERE id = ?`,
     [id_event, id]
@@ -80,3 +87,40 @@ export const approveSatgas = async (c: Context) => {
   return c.json(successResponse('Satgas berhasil di-approve', { id, id_event }))
 }
 
+export const rejectSatgas = async (c: Context) => {
+  const body = await c.req.json()
+
+  const schema = z.object({
+    id: z.number()
+  })
+
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    return c.json(errorResponse('Input tidak valid'), 400)
+  }
+
+  const { id } = parsed.data
+  const jwtPayload = c.get('user') as { id: number }
+
+  // ✅ Validasi user level
+  const [users]: any = await db.query(`SELECT level FROM users WHERE id = ?`, [jwtPayload.id])
+  if (users.length === 0) {
+    return c.json(errorResponse('User tidak ditemukan'), 404)
+  }
+
+  if (Number(users[0].level) !== 1) {
+    return c.json(errorResponse('Anda tidak memiliki izin untuk melakukan aksi ini'), 403)
+  }
+
+  // ✅ Update status menjadi 9 (rejected)
+  const [result]: any = await db.query(
+    `UPDATE petugas SET status = 9 WHERE id = ?`,
+    [id]
+  )
+
+  if (result.affectedRows === 0) {
+    return c.json(errorResponse('Petugas tidak ditemukan'), 404)
+  }
+
+  return c.json(successResponse('Satgas berhasil ditolak', { id }))
+}
