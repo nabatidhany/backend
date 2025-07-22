@@ -4,6 +4,7 @@ import { generateToken } from '../utils/jwt';
 import { successResponse, errorResponse } from '../utils/response';
 import { partnerLoginHandler } from '../handlers/partners/Auth/login';
 import { registerPetugasHandler } from '../handlers/partners/Auth/register';
+import { getMasjidByEventIdHandler } from '../handlers/partners/Masjid/getAllMasjidEvent';
 
 
 const auth = new Hono();
@@ -35,4 +36,6 @@ auth.post('/login', async (c) => {
 
 auth.post('/partners-login', partnerLoginHandler);
 auth.post('/partners-register', registerPetugasHandler);
+auth.post('/masjid/by-event', getMasjidByEventIdHandler)
+
 export default auth;
