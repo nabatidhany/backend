@@ -36,6 +36,6 @@ auth.post('/login', async (c) => {
 
 auth.post('/partners-login', partnerLoginHandler);
 auth.post('/partners-register', registerPetugasHandler);
-auth.post('/masjid/by-event', getMasjidByEventIdHandler)
+auth.get('/masjid/by-event', getMasjidByEventIdHandler)
 
 export default auth;
