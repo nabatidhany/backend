@@ -11,6 +11,8 @@ import { generateCards } from '../handlers/partners/GenerateCards/generateCard';
 import { approveSatgas, getPesertaByEvent, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
 import { createPesertaHandler } from '../handlers/partners/Peserta/pesertaController';
 import { getTodayAbsensiSatgas } from '../handlers/partners/Satgas/statistikAbsen';
+import { getDaftarRequestCetak, requestCetakKartu, updateStatusRequest } from '../handlers/partners/GenerateCards/qr_controller';
+import { generateCardsByRequest } from '../handlers/partners/GenerateCards/generateCardsByRequest';
 
 const privateRoute = new Hono();
 
@@ -57,5 +59,10 @@ privateRoute.post('/partners/satgas/reject', rejectSatgas)
 privateRoute.get('/partners/satgas/get-peserta', getPesertaByEvent)
 privateRoute.post('/partners/satgas/register-peserta', createPesertaHandler)
 privateRoute.get('/partners/satgas/statistik-absen-satgas', getTodayAbsensiSatgas)
+privateRoute.get('/partners/satgas/statistik-absen-satgas', getTodayAbsensiSatgas)
+privateRoute.post('/partners/satgas/card/request', requestCetakKartu)
+privateRoute.get('/partners/satgas/card/requests', getDaftarRequestCetak)
+privateRoute.put('/partners/satgas/card/requests/:id/status', updateStatusRequest)
+privateRoute.post('/partners/satgas/card/generate-by-request', generateCardsByRequest)
 
 export default privateRoute;
