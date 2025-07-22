@@ -132,7 +132,7 @@ export const getPesertaByEvent = async (c: Context) => {
   const eventId = c.req.query('event_id')
   const satgasId = c.req.query('satgas_id')
   const search = c.req.query('search')?.trim()
-  const gender = c.req.query('gender')?.toUpperCase()
+  const gender = c.req.query('gender')?.toLowerCase()
   const page = parseInt(c.req.query('page') || '1')
   const limit = parseInt(c.req.query('limit') || '10')
   const offset = (page - 1) * limit
@@ -173,7 +173,7 @@ export const getPesertaByEvent = async (c: Context) => {
     params.push(`%${search}%`)
   }
 
-  if (gender === 'L' || gender === 'P') {
+  if (gender === 'male' || gender === 'female') {
     query += ' AND p.gender = ?'
     params.push(gender)
   }
@@ -181,7 +181,7 @@ export const getPesertaByEvent = async (c: Context) => {
   query += ' ORDER BY p.fullname ASC LIMIT ? OFFSET ?'
   params.push(limit, offset)
 
-  // Count query
+  // Count total peserta
   let countQuery = `
     SELECT COUNT(*) AS total
     FROM detail_peserta dp
@@ -200,16 +200,35 @@ export const getPesertaByEvent = async (c: Context) => {
     countParams.push(`%${search}%`)
   }
 
-  if (gender === 'L' || gender === 'P') {
+  if (gender === 'male' || gender === 'female') {
     countQuery += ' AND p.gender = ?'
     countParams.push(gender)
   }
+
+  // Count male
+  const [maleCountResult]: any = await db.query(`
+    SELECT COUNT(*) AS total_male
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    WHERE dp.id_event = ? AND p.gender = 'male'
+  `, [eventId])
+
+  // Count female
+  const [femaleCountResult]: any = await db.query(`
+    SELECT COUNT(*) AS total_female
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    WHERE dp.id_event = ? AND p.gender = 'female'
+  `, [eventId])
 
   const [rows]: any = await db.query(query, params)
   const [countResult]: any = await db.query(countQuery, countParams)
 
   const total = countResult[0]?.total || 0
   const totalPages = Math.ceil(total / limit)
+
+  const totalMale = maleCountResult[0]?.total_male || 0
+  const totalFemale = femaleCountResult[0]?.total_female || 0
 
   return c.json(successResponse('Daftar peserta berhasil diambil', {
     data: rows,
@@ -218,7 +237,12 @@ export const getPesertaByEvent = async (c: Context) => {
       limit,
       total,
       totalPages
+    },
+    summary: {
+      total_male: totalMale,
+      total_female: totalFemale
     }
   }))
 }
+
 
