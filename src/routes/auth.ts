@@ -2,6 +2,9 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { generateToken } from '../utils/jwt';
 import { successResponse, errorResponse } from '../utils/response';
+import { partnerLoginHandler } from '../handlers/partners/Auth/login';
+import { registerPetugasHandler } from '../handlers/partners/Auth/register';
+
 
 const auth = new Hono();
 
@@ -30,4 +33,6 @@ auth.post('/login', async (c) => {
   return c.json(errorResponse('Username atau password salah'), 401);
 });
 
+auth.post('/partners-login', partnerLoginHandler);
+auth.post('/partners-register', registerPetugasHandler);
 export default auth;
