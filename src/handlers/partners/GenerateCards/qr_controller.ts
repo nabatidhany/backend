@@ -93,7 +93,7 @@ export const updateStatusRequest = async (c: Context) => {
       if (!users.length) return c.json(errorResponse('User tidak ditemukan'), 404)
 
       const level = users[0].level
-      if (level !== 1) {
+      if (level !== '1') {
         return c.json(errorResponse('Akses ditolak'), 403)
       }
 
