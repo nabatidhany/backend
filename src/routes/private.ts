@@ -10,6 +10,7 @@ import { checkLocation } from '../handlers/location/checkLocation';
 import { generateCards } from '../handlers/partners/GenerateCards/generateCard';
 import { approveSatgas, getPesertaByEvent, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
 import { createPesertaHandler } from '../handlers/partners/Peserta/pesertaController';
+import { getTodayAbsensiSatgas } from '../handlers/partners/Satgas/statistikAbsen';
 
 const privateRoute = new Hono();
 
@@ -55,5 +56,6 @@ privateRoute.post('/partners/satgas/approve', approveSatgas)
 privateRoute.post('/partners/satgas/reject', rejectSatgas)
 privateRoute.get('/partners/satgas/get-peserta', getPesertaByEvent)
 privateRoute.post('/partners/satgas/register-peserta', createPesertaHandler)
+privateRoute.get('/partners/satgas/statistik-absen-satgas', getTodayAbsensiSatgas)
 
 export default privateRoute;
