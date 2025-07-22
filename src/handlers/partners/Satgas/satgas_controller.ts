@@ -127,3 +127,76 @@ export const rejectSatgas = async (c: Context) => {
 
   return c.json(successResponse('Satgas berhasil ditolak', { id }))
 }
+
+export const getPesertaByEvent = async (c: Context) => {
+  const eventId = c.req.query('event_id')
+  const satgasId = c.req.query('satgas_id')
+  const page = parseInt(c.req.query('page') || '1')
+  const limit = parseInt(c.req.query('limit') || '10')
+  const offset = (page - 1) * limit
+
+  if (!eventId) {
+    return c.json(errorResponse('event_id wajib dikirim', 400))
+  }
+
+  // --- Main query ---
+  let query = `
+    SELECT 
+      dp.id_event,
+      p.id AS peserta_id,
+      p.fullname,
+      p.contact,
+      p.gender,
+      p.dob,
+      p.qr_code,
+      p.status,
+      p.IsHideName,
+      p.masjid_id,
+      m.nama AS nama_masjid,
+      u.name AS nama_satgas
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    LEFT JOIN masjid m ON p.masjid_id = m.id
+    LEFT JOIN users u ON p.id_user = u.id
+    WHERE dp.id_event = ?
+  `
+
+  const params: any[] = [eventId]
+
+  if (satgasId) {
+    query += ' AND p.id_user = ?'
+    params.push(satgasId)
+  }
+
+  query += ' ORDER BY p.fullname ASC LIMIT ? OFFSET ?'
+  params.push(limit, offset)
+
+  // --- Count query for pagination info ---
+  let countQuery = `
+    SELECT COUNT(*) AS total
+    FROM detail_peserta dp
+    JOIN peserta p ON dp.id_peserta = p.id
+    WHERE dp.id_event = ?
+  `
+  const countParams: any[] = [eventId]
+  if (satgasId) {
+    countQuery += ' AND p.id_user = ?'
+    countParams.push(satgasId)
+  }
+
+  const [rows]: any = await db.query(query, params)
+  const [countResult]: any = await db.query(countQuery, countParams)
+
+  const total = countResult[0]?.total || 0
+  const totalPages = Math.ceil(total / limit)
+
+  return c.json(successResponse('Daftar peserta berhasil diambil', {
+    data: rows,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages
+    }
+  }))
+}

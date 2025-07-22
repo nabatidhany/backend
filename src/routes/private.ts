@@ -8,7 +8,7 @@ import { createHabit } from '../handlers/habits/createHabit';
 import { updateHabitCheck } from '../handlers/habits/updateHabitCheck';
 import { checkLocation } from '../handlers/location/checkLocation';
 import { generateCards } from '../handlers/partners/GenerateCards/generateCard';
-import { approveSatgas, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
+import { approveSatgas, getPesertaByEvent, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
 
 const privateRoute = new Hono();
 
@@ -52,5 +52,6 @@ privateRoute.post('/partners/generate-cards', generateCards)
 privateRoute.get('/partners/satgas/pending', getUnapprovedSatgas)
 privateRoute.post('/partners/satgas/approve', approveSatgas)
 privateRoute.post('/partners/satgas/reject', rejectSatgas)
+privateRoute.get('/partners/satgas/get-peserta', getPesertaByEvent)
 
 export default privateRoute;
