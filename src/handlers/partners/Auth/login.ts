@@ -24,7 +24,6 @@ export const partnerLoginHandler = async (c: Context) => {
 
     const { username, password } = parsed.data;
 
-    // Cari user berdasarkan username
     const [rows]: any = await db.query(
       'SELECT id, username, password, name, level FROM users WHERE username = ? LIMIT 1',
       [username]
@@ -36,30 +35,29 @@ export const partnerLoginHandler = async (c: Context) => {
       return c.json(errorResponse('Username tidak ditemukan'), 401);
     }
 
-    // Bandingkan password
     const passwordMatch = await bcrypt.compare(password, user.password);
-
     if (!passwordMatch) {
       return c.json(errorResponse('Password salah'), 401);
     }
 
-    // Cek status petugas
-    const [petugasRows]: any = await db.query(
-      'SELECT status FROM petugas WHERE id_user = ? LIMIT 1',
-      [user.id]
-    );
+    // Jika bukan admin (level != 1), cek status dari tabel petugas
+    if (user.level !== '1') {
+      const [petugasRows]: any = await db.query(
+        'SELECT status FROM petugas WHERE id_user = ? LIMIT 1',
+        [user.id]
+      );
 
-    if (petugasRows.length === 0) {
-      return c.json(errorResponse('Akun belum terdaftar sebagai petugas'), 403);
+      const petugas = petugasRows[0];
+
+      if (!petugas) {
+        return c.json(errorResponse('Akun belum terdaftar sebagai petugas'), 403);
+      }
+
+      if (petugas.status === 0) {
+        return c.json(errorResponse('Akun belum disetujui oleh admin'), 403);
+      }
     }
 
-    const status = petugasRows[0].status;
-
-    if (status !== 1) {
-      return c.json(errorResponse('Akun belum diaktifkan, hubungi admin'), 403);
-    }
-
-    // Generate token
     const token = await generateToken({ id: user.id, username: user.username });
 
     return c.json(successResponse('Berhasil login', {
