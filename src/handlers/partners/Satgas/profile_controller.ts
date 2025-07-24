@@ -43,3 +43,16 @@ export const updateProfile = async (c: Context) => {
     passwordChanged: !!password
   }))
 }
+
+export const getProfile = async (c: Context) => {
+  const user = c.get('user') as { id: number }
+
+  const [users]: any = await db.query(`SELECT name FROM users WHERE id = ?`, [user.id])
+  if (users.length === 0) {
+    return c.json(errorResponse('User tidak ditemukan'), 404)
+  }
+
+  return c.json(successResponse('Profil berhasil diambil', {
+    name: users[0].name
+  }))
+}
