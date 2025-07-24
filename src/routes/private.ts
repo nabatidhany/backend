@@ -13,6 +13,7 @@ import { createPesertaHandler } from '../handlers/partners/Peserta/pesertaContro
 import { getTodayAbsensiSatgas } from '../handlers/partners/Satgas/statistikAbsen';
 import { getDaftarRequestCetak, requestCetakKartu, updateStatusRequest } from '../handlers/partners/GenerateCards/qr_controller';
 import { generateCardsByRequest } from '../handlers/partners/GenerateCards/generateCardsByRequest';
+import { updateProfile } from '../handlers/partners/Satgas/profile_controller';
 
 const privateRoute = new Hono();
 
@@ -64,5 +65,7 @@ privateRoute.post('/partners/satgas/card/request', requestCetakKartu)
 privateRoute.get('/partners/satgas/card/requests', getDaftarRequestCetak)
 privateRoute.put('/partners/satgas/card/requests/:id/status', updateStatusRequest)
 privateRoute.post('/partners/satgas/card/generate-by-request', generateCardsByRequest)
+// Profile
+privateRoute.put('/partners/satgas/profile/update-profile', updateProfile)
 
 export default privateRoute;

@@ -2,6 +2,7 @@ import { Context } from 'hono'
 import { db } from '../../../db/client'
 import { errorResponse, successResponse } from '../../../utils/response'
 import { z } from 'zod'
+import { checkIsAdmin } from '../../../utils/auth'
 
 export const getUnapprovedSatgas = async (c: Context) => {
   const page = parseInt(c.req.query('page') || '1', 10)
@@ -63,6 +64,9 @@ export const approveSatgas = async (c: Context) => {
   if (!parsed.success) {
     return c.json(errorResponse('Input tidak valid'), 400)
   }
+
+  // const adminCheck = await checkIsAdmin(c)
+  // if (!adminCheck.ok) return adminCheck.error
 
   const { id, id_event } = parsed.data
   const jwtPayload = c.get('user') as { id: number }

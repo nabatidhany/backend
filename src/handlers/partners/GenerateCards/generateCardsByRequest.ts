@@ -30,6 +30,10 @@ export const generateCardsByRequest = async (c: Context) => {
 
       const request = rows[0]
 
+      if (request.status === 'terdownload') {
+        return c.json(errorResponse('Kartu sudah pernah digenerate dan diunduh'), 403)
+      }
+
       if (request.status !== 'disetujui') {
         return c.json(errorResponse('Request belum disetujui oleh admin'), 403)
       }
@@ -97,6 +101,8 @@ export const generateCardsByRequest = async (c: Context) => {
       }
 
       const pdfBytes = await pdfDoc.save()
+
+      await conn.query(`UPDATE kartu_requests SET status = 'terdownload' WHERE id = ?`, [id_request])
 
       return new Response(pdfBytes, {
         headers: {
