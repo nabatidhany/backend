@@ -6,12 +6,14 @@ import * as bcrypt from 'bcryptjs';
 
 export const updateProfile = async (c: Context) => {
   const user = c.get('user') as { id: number }
-
   const body = await c.req.json()
 
+  // Validasi: nama atau password harus diisi minimal satu
   const schema = z.object({
-    name: z.string().min(2, 'Nama minimal 2 karakter'),
+    name: z.string().min(2, 'Nama minimal 2 karakter').optional(),
     password: z.string().min(6, 'Password minimal 6 karakter').optional()
+  }).refine(data => data.name || data.password, {
+    message: 'Minimal salah satu dari nama atau password harus diisi'
   })
 
   const parsed = schema.safeParse(body)
@@ -21,28 +23,36 @@ export const updateProfile = async (c: Context) => {
 
   const { name, password } = parsed.data
 
-  // Ambil data user dulu
   const [users]: any = await db.query(`SELECT * FROM users WHERE id = ?`, [user.id])
   if (users.length === 0) {
     return c.json(errorResponse('User tidak ditemukan'), 404)
   }
 
-  let newPassword = users[0].password // default: tidak diubah
+  // Default: tetap pakai password lama
+  let newPassword = users[0].password
   if (password) {
     const salt = bcrypt.genSaltSync(10)
     newPassword = bcrypt.hashSync(password, salt)
   }
 
-  await db.query(
-    `UPDATE users SET name = ?, password = ? WHERE id = ?`,
-    [name, newPassword, user.id]
-  )
+  // Update users table
+  await db.query(`UPDATE users SET name = ?, password = ? WHERE id = ?`, [
+    name || users[0].name,
+    newPassword,
+    user.id
+  ])
+
+  // Jika ada perubahan nama, update juga di tabel petugas (satgas)
+  if (name) {
+    await db.query(`UPDATE petugas SET nama = ? WHERE id_user = ?`, [name, user.id])
+  }
 
   return c.json(successResponse('Profil berhasil diperbarui', {
-    name,
+    name: name || users[0].name,
     passwordChanged: !!password
   }))
 }
+
 
 export const getProfile = async (c: Context) => {
   const user = c.get('user') as { id: number }
