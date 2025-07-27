@@ -293,11 +293,11 @@ export const requestJoinEventPejuangQuranHandler = async (c: Context) => {
         return c.json(errorResponse('Anda sudah pernah request untuk event Pejuang Quran'), 409)
       }
 
-      // ✅ Insert ke event 2 dengan status = 0
+      // ✅ Insert ke event 1 dengan status = 0
       await conn.query(
         `INSERT INTO petugas (nama, contact, id_masjid, id_event, id_user, status)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [nama, contact, id_masjid, 2, id_user, 0]
+        [nama, contact, id_masjid, 1, id_user, 0]
       )
 
       await conn.commit()
