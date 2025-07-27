@@ -1,31 +1,25 @@
-import { Hono } from 'hono';
-import auth from './routes/auth';
-import privateRoute from './routes/private';
+import { Hono } from 'hono'
+import { swaggerUI } from '@hono/swagger-ui'
+import { openApiDoc } from './utils/openapi'
+
+import auth from './routes/auth'
+import privateRoute from './routes/private'
 import { cors } from 'hono/cors'
 
-// import cron from 'node-cron';
-// import { generateAndStoreDailyContent } from './jobs/aiContent';
+const app = new Hono()
 
-const app = new Hono();
+app.use('*', cors({ origin: '*' }))
 
-app.use('*', cors({
-  origin: '*', // Ganti ke domain frontend kalau ingin lebih aman
-}))
+// Serve OpenAPI JSON
+app.get('/doc', (c) => c.json(openApiDoc))
 
-app.route('/auth', auth);
-app.route('/api', privateRoute);
+// Swagger UI di /ui
+app.get('/ui', swaggerUI({ url: '/doc' }))
 
-app.get('/', (c) => c.text('Hello from Bun + Hono API'));
+// Route asli kamu
+app.route('/auth', auth)
+app.route('/api', privateRoute)
 
-// cron.schedule('*/15 * * * *', async () => {
-// cron.schedule('0 * * * *', async () => {
-//   console.log('⏰ Cron jalan setiap 1 Jam!');
-//   await generateAndStoreDailyContent(); // Fungsi yang kamu buat sendiri
-// });
+app.get('/', (c) => c.text('Hello from Hono + Bun'))
 
-// (async () => {
-// 	console.log('🚀 Pertama kali jalan, generate konten AI sekarang...');
-// 	await generateAndStoreDailyContent();
-// })();
-
-export default app;
+export default app

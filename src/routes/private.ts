@@ -8,12 +8,13 @@ import { createHabit } from '../handlers/habits/createHabit';
 import { updateHabitCheck } from '../handlers/habits/updateHabitCheck';
 import { checkLocation } from '../handlers/location/checkLocation';
 import { generateCards } from '../handlers/partners/GenerateCards/generateCard';
-import { approveSatgas, getPesertaByEvent, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
+import { approveSatgas, getPesertaByEvent, getSatgasEventsHandler, getUnapprovedSatgas, rejectSatgas } from '../handlers/partners/Satgas/satgas_controller';
 import { createPesertaHandler } from '../handlers/partners/Peserta/pesertaController';
 import { getTodayAbsensiSatgas } from '../handlers/partners/Satgas/statistikAbsen';
 import { getDaftarRequestCetak, requestCetakKartu, updateStatusRequest } from '../handlers/partners/GenerateCards/qr_controller';
 import { generateCardsByRequest } from '../handlers/partners/GenerateCards/generateCardsByRequest';
 import { getProfile, updateProfile } from '../handlers/partners/Satgas/profile_controller';
+import { createPejuangQuranHandler, getListPejuangQuranByMasjidHandler, getRiwayatSatgasHandler, getTerakhirPesertaHandler, requestJoinEventPejuangQuranHandler, searchSuratHandler } from '../handlers/partners/Peserta/createPejuangQuranHandler';
 
 const privateRoute = new Hono();
 
@@ -68,5 +69,14 @@ privateRoute.post('/partners/satgas/card/generate-by-request', generateCardsByRe
 // Profile
 privateRoute.put('/partners/satgas/profile/update-profile', updateProfile)
 privateRoute.get('/partners/satgas/profile', getProfile)
+
+// pejuang Quran
+privateRoute.post('/partners/pejuang-quran', createPejuangQuranHandler)
+privateRoute.get('/partners/surat/search', searchSuratHandler)
+privateRoute.get('/partners/pejuang-quran/riwayat', getRiwayatSatgasHandler)
+privateRoute.get('/partners/pejuang-quran/log', getTerakhirPesertaHandler)
+privateRoute.get('/partners/pejuang-quran/list', getListPejuangQuranByMasjidHandler)
+privateRoute.post('/partners/petugas/request-pejuang-quran', requestJoinEventPejuangQuranHandler)
+privateRoute.get('/partners/petugas/event-satgas', getSatgasEventsHandler)
 
 export default privateRoute;

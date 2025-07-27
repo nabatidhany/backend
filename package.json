@@ -4,11 +4,14 @@
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
+    "@hono/swagger-ui": "^0.5.2",
     "@planetscale/database": "^1.19.0",
     "@types/qrcode": "^1.5.5",
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.0.1",
-    "hono": "^4.8.3",
+    "hono": "^4.8.9",
+    "hono-openapi": "^0.4.8",
     "mysql2": "^3.14.1",
     "nanoid": "^5.1.5",
     "node-cron": "^4.2.0",

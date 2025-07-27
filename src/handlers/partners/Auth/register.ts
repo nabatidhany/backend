@@ -14,7 +14,8 @@ export const registerPetugasHandler = async (c: Context) => {
         message: 'Username harus berupa nomor HP (10-15 digit)'
       }),
       password: z.string().min(6),
-      masjid_id: z.number()
+      masjid_id: z.number(),
+      id_event: z.array(z.number()).min(1) // ✅ Perubahan: terima array event
     });
 
     const parsed = schema.safeParse(body);
@@ -23,7 +24,7 @@ export const registerPetugasHandler = async (c: Context) => {
       return c.json(errorResponse(parsed.error.issues[0].message), 400);
     }
 
-    const { name, username, password, masjid_id } = parsed.data;
+    const { name, username, password, masjid_id, id_event } = parsed.data;
 
     // Cek apakah username sudah ada
     const [existing]: any = await db.query(
@@ -46,17 +47,20 @@ export const registerPetugasHandler = async (c: Context) => {
 
     const userId = userResult.insertId;
 
-    // Insert ke tabel petugas
-    await db.query(
-      `INSERT INTO petugas (nama, contact, id_masjid, id_event, id_user, status)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, username, masjid_id, 0, userId, 0]
-    );
+    // Insert ke tabel petugas untuk setiap id_event
+    for (const eventId of id_event) {
+      await db.query(
+        `INSERT INTO petugas (nama, contact, id_masjid, id_event, id_user, status)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [name, username, masjid_id, eventId, userId, 0]
+      );
+    }
 
     return c.json(successResponse('Registrasi berhasil', {
       user_id: userId,
       name,
-      username
+      username,
+      event_ids: id_event
     }));
   } catch (err) {
     console.error('Register error:', err);

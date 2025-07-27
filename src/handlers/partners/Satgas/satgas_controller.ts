@@ -28,7 +28,7 @@ export const getUnapprovedSatgas = async (c: Context) => {
   const [rows]: any = await db.query(
     `SELECT 
       p.id, p.nama, p.contact, p.id_masjid, m.nama as nama_masjid,
-      p.id_user, u.username, u.name 
+      p.id_user, u.username, u.name, p.id_event 
      FROM petugas p
      JOIN users u ON p.id_user = u.id
      JOIN masjid m ON p.id_masjid = m.id
@@ -57,7 +57,6 @@ export const approveSatgas = async (c: Context) => {
 
   const schema = z.object({
     id: z.number(),         // id dari tabel petugas
-    id_event: z.number()    // event yang ditentukan admin
   })
 
   const parsed = schema.safeParse(body)
@@ -68,7 +67,7 @@ export const approveSatgas = async (c: Context) => {
   // const adminCheck = await checkIsAdmin(c)
   // if (!adminCheck.ok) return adminCheck.error
 
-  const { id, id_event } = parsed.data
+  const { id } = parsed.data
   const jwtPayload = c.get('user') as { id: number }
 
   // ✅ Validasi user level
@@ -83,15 +82,15 @@ export const approveSatgas = async (c: Context) => {
 
   // ✅ Update status menjadi 1 (approved) + id_event
   const [result]: any = await db.query(
-    `UPDATE petugas SET status = 1, id_event = ? WHERE id = ?`,
-    [id_event, id]
+    `UPDATE petugas SET status = 1 WHERE id = ?`,
+    [id]
   )
 
   if (result.affectedRows === 0) {
     return c.json(errorResponse('Petugas tidak ditemukan'), 404)
   }
 
-  return c.json(successResponse('Satgas berhasil di-approve', { id, id_event }))
+  return c.json(successResponse('Satgas berhasil di-approve', { id }))
 }
 
 export const rejectSatgas = async (c: Context) => {
@@ -249,4 +248,28 @@ export const getPesertaByEvent = async (c: Context) => {
   }))
 }
 
+export const getSatgasEventsHandler = async (c: Context) => {
+  try {
+    const jwtPayload = c.get('user') as { id: number };
+    const id_user = jwtPayload?.id;
 
+    const [rows]: any = await db.query(
+      `SELECT 
+         p.id_event,
+         e.nama,
+         p.status,
+         p.id_masjid,
+         m.nama AS nama_masjid
+       FROM petugas p
+       JOIN event e ON p.id_event = e.id
+       LEFT JOIN masjid m ON p.id_masjid = m.id
+       WHERE p.id_user = ?`,
+      [id_user]
+    );
+
+    return c.json(successResponse('Daftar event yang diikuti oleh satgas', rows));
+  } catch (err) {
+    console.error('Error getSatgasEventsHandler:', err);
+    return c.json(errorResponse('Gagal mengambil data event'), 500);
+  }
+};
