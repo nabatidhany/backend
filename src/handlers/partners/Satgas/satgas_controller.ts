@@ -263,7 +263,7 @@ export const getSatgasEventsHandler = async (c: Context) => {
        FROM petugas p
        JOIN event e ON p.id_event = e.id
        LEFT JOIN masjid m ON p.id_masjid = m.id
-       WHERE p.id_user = ?`,
+       WHERE p.id_user = ? and p.status = 1`
       [id_user]
     );
 
