@@ -8,16 +8,13 @@ services:
       - .env
     networks:
       - traefik
-      - web
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.hono.rule=Host(`app.shollu.com`)"
       - "traefik.http.routers.hono.entrypoints=websecure"
-      - "traefik.http.routers.hono.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.hono.tls.certresolver=myresolver"
       - "traefik.http.services.hono.loadbalancer.server.port=3000"
 
 networks:
   traefik:
-    external: true
-  web:
     external: true
