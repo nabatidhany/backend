@@ -8,6 +8,7 @@ services:
       - .env
     networks:
       - traefik
+      - web
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.hono.rule=Host(`app.shollu.com`)"
@@ -17,4 +18,6 @@ services:
 
 networks:
   traefik:
+    external: true
+  web:
     external: true
