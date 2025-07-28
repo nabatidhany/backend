@@ -10,4 +10,4 @@ bun run dev
 
 open http://localhost:3000
 
-maintain by dhany dp
+maintain by dhany
