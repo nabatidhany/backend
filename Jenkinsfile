@@ -38,7 +38,7 @@ pipeline {
       echo "❌ Deploy gagal!"
     }
     success {
-      echo "✅ Deploy sukses ke https://app.shollu.com"
+      echo "✅ Deploy sukses untuk https://app.shollu.com"
     }
   }
 }
