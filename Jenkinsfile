@@ -1,12 +1,8 @@
 pipeline {
   agent any
 
-  triggers {
-    githubPush()
-  }
-
   environment {
-    PROJECT_DIR = "/var/projects/backend"
+    PROJECT_DIR = "${env.WORKSPACE}"
   }
 
   stages {
@@ -42,7 +38,7 @@ pipeline {
       echo "❌ Deploy gagal!"
     }
     success {
-      echo "✅ Deploy sukses https://app.shollu.com"
+      echo "✅ Deploy sukses ke https://app.shollu.com"
     }
   }
 }
