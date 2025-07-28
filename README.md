@@ -8,6 +8,6 @@ To run:
 bun run dev
 ```
 
-open http://localhost:3000
+open project to http://localhost:3000
 
 maintain by dhany
