@@ -20,6 +20,6 @@ app.get('/ui', swaggerUI({ url: '/doc' }))
 app.route('/auth', auth)
 app.route('/api', privateRoute)
 
-app.get('/', (c) => c.text('Hello from Hono + Bun'))
+app.get('/', (c) => c.text('Hello from Hono + Bun Shollu Corp'))
 
 export default app
