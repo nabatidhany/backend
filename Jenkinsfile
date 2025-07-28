@@ -18,8 +18,8 @@ pipeline {
     stage('Build Docker') {
       steps {
         dir("${env.PROJECT_DIR}") {
-          sh 'docker compose down'
-          sh 'docker compose build'
+          sh 'docker-compose down'
+          sh 'docker-compose build'
         }
       }
     }
@@ -27,7 +27,7 @@ pipeline {
     stage('Deploy') {
       steps {
         dir("${env.PROJECT_DIR}") {
-          sh 'docker compose up -d'
+          sh 'docker-compose up -d'
         }
       }
     }
